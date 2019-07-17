@@ -3,8 +3,8 @@
 #include "genalg.h"
 #include "matrix.h"
 
-//void   LCS(fsu::String s, size_t m, fsu::String t, size_t n, fsu::Matrix<size_t>& L); 
-void   LCS(const char* s, size_t m, const char* t, size_t n, fsu::Matrix<size_t>& L); 
+void   LCS(fsu::String s, size_t m, fsu::String t, size_t n, fsu::Matrix<size_t>& L); 
+//void   LCS(const char* s, size_t m, const char* t, size_t n, fsu::Matrix<size_t>& L); 
 
 size_t LCS(const char* s, size_t m, const char* t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt); 
 //size_t LCS(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt);
@@ -35,8 +35,8 @@ int main(int argc, char*argv[])
 	return;
 }
 
-//size_t LCS(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt)
-size_t LCS(const char* s, size_t m, const char* t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt)
+size_t LCS(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt)
+//size_t LCS(const char* s, size_t m, const char* t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt)
 {
 	fsu::Matrix<size_t> L (m+1,n+1, 0);
 	LCS(s, m, t, n, L);
