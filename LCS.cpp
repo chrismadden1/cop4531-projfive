@@ -29,6 +29,8 @@ int main(int argc, char*argv[])
 		
 	size_t lcs_length = LCS(str1, m, str2, n, bvs, bvt);
 	cout << "length of lcs: " << lcs_length << '\n';
+	bvs.Dump(std::cout);
+	bvt.Dump(std::cout);
 	
 	return;
 }
