@@ -36,7 +36,7 @@ int main(int argc, char*argv[])
 //size_t LCS(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt)
 size_t LCS(const char* s, size_t m, const char* t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt)
 {
-	fsu::Matrix<size_t> L (m+1,n+1);
+	fsu::Matrix<size_t> L (m+1,n+1, 0);
 	LCS(s, m, t, n, L);
 	bvs.Unset();
 	bvt.Unset();
