@@ -3,8 +3,8 @@
 #include "genalg.h"
 #include "matrix.h"
 
-//void   ED(fsu::String s, size_t m, fsu::String t, size_t n); 
-void   ED(const char* s, size_t m, const char* t, size_t n,  fsu::BitVector& bvs, fsu::BitVector& bvt);
+void   ED(fsu::String s, size_t m, fsu::String t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt); 
+//void   ED(const char* s, size_t m, const char* t, size_t n,  fsu::BitVector& bvs, fsu::BitVector& bvt);
 
 
 //namespace fsu
@@ -32,8 +32,8 @@ int main(int argc, char*argv[])
 	
 	return;
 }
-//size_t LCS(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt)
-size_t ED(const char* s, size_t m, const char* t, size_t n,  fsu::BitVector& bvs, fsu::BitVector& bvt)
+size_t LCS(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt)
+//size_t ED(const char* s, size_t m, const char* t, size_t n,  fsu::BitVector& bvs, fsu::BitVector& bvt)
 {
 	bvs.Unset();
 	bvs.Unset();
