@@ -2,6 +2,9 @@
 #include "bitvect.h"
 #include "genalg.h"
 #include "matrix.h"
+#include "xstring.cpp"
+#include "bitvect.cpp"
+#include "tostring.cpp"
 
 void   LCS(fsu::String s, size_t m, fsu::String t, size_t n, fsu::Matrix<size_t>& L); 
 //void   LCS(const char* s, size_t m, const char* t, size_t n, fsu::Matrix<size_t>& L); 
