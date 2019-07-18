@@ -2,6 +2,9 @@
 #include "bitvect.h"
 #include "genalg.h"
 #include "matrix.h"
+#include "xstring.cpp"
+#include "bitvect.cpp"
+#include "tostring.cpp"
 
 void   ED(fsu::String s, size_t m, fsu::String t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt); 
 //void   ED(const char* s, size_t m, const char* t, size_t n,  fsu::BitVector& bvs, fsu::BitVector& bvt);
