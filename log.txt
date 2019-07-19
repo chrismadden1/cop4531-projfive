@@ -1,0 +1,14 @@
+<07/17/2019>
+<chris madden>
+<madden, FSUID: cm17g>
+<COP4531 project 5>
+
+07/17/2019 - Starting on the project a little late noe because I was riding the struggle bus for too long on project 4
+began reading project documentation and graph 4 lecture notes to understand what needs to happen
+
+07/18/2019 - finished the lecture notes and understand the exercises asked of us. watched a few video on LCS and ED as well
+on youtube and starting the implementation.
+
+07/19/2019 - finished implementing the two functions LCS and ED that match the outputs of LCS_i.x and ED_i.x as far as 
+the number or size_t that is returned from the function. Now need to work on the edit transcripts and get the rest of 
+the output to matchup.
