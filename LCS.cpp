@@ -7,15 +7,12 @@
 #include "xstring.cpp"
 #include "tostring.h"
 #include "string.h"
-//#include "tostring.cpp"
 #include "bitvect.cpp"
 
 
 using namespace fsu;
 void  ls1(fsu::String s, size_t m, fsu::String t, size_t n, fsu::Matrix<size_t>& L);
-//void   LCS(const char* s, size_t m, const char* t, size_t n, fsu::Matrix<size_t>& L);
 
-//size_t LCS(const char* s, size_t m, const char* t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt);
 size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt);
 
 
@@ -31,18 +28,25 @@ int main(int argc, char*argv[])
 
 	size_t m = str1.Size();
 	size_t n = str2.Size();
+	size_t longest = fsu::Max(m, n);
 
 	fsu::BitVector  bvs(m); //= new fsu::BitVector (m);
 	fsu::BitVector  bvt(n); //= new fsu::BitVector (n);
 
 	size_t lcs_length = ls2(str1, m, str2, n, bvs, bvt);
-	std::cout << "length of lcs: " << lcs_length << '\n';
-	bvs.Dump(std::cout);
-	bvt.Dump(std::cout);
+	std::cout << "Length of LCS:   " << lcs_length << '\n';
+	std::cout << "LCS in s: " << std::endl;
+	std::cout << "bitcode: " << bvs.Dump(std::cout);
+	std::cout << "\t s = " << str1 << std::endl;
+	std::cout << "LCS in t: " << std::endl;
+	std::cout << "bitcode: " << bvt.Dump(std::cout);
+	std::cout << "\t t = " << str2 << std::endl;
+	std::cout << "optimal alignment: " << std::endl;
+
+	
 
 	return 0;
 }
-//size_t LCS(const char* s, size_t m, const char* t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt)
 size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt)
 {
 	fsu::Matrix<size_t> L (m+1,n+1, 0);
