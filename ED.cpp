@@ -61,7 +61,7 @@ size_t ED(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs, 
 			{
 				L[i][j] = Min(1 + L[i-1][j],//delete
 						   1 + L[i][j-1],//insert
-						   1 + L[i-1][j-1]);//sub
+						   2 + L[i-1][j-1]);//sub
 			}
 		}
 	}
