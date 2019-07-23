@@ -25,25 +25,57 @@ int main(int argc, char*argv[])
 	}
 	fsu::String str1 = argv[1];
 	fsu::String str2 = argv[2];
-
 	size_t m = str1.Size();
 	size_t n = str2.Size();
-	size_t longest = fsu::Max(m, n);
-
-	fsu::BitVector  bvs(m); //= new fsu::BitVector (m);
-	fsu::BitVector  bvt(n); //= new fsu::BitVector (n);
-
+	fsu::BitVector  bvs(m);
+	fsu::BitVector  bvt(n);
 	size_t lcs_length = ls2(str1, m, str2, n, bvs, bvt);
-	std::cout << "Length of LCS:   " << lcs_length << '\n';
-	std::cout << "LCS in s: " << std::endl;
-	std::cout << "bitcode: " << bvs.Dump(std::cout);
-	std::cout << "\t s = " << str1 << std::endl;
-	std::cout << "LCS in t: " << std::endl;
-	std::cout << "bitcode: " << bvt.Dump(std::cout);
-	std::cout << "\t t = " << str2 << std::endl;
-	std::cout << "optimal alignment: " << std::endl;
+	size_t arr1[m];
+	size_t arr2[n];
+	size_t i, j, k;
+	j = 0;
+	k = 0;
+	for(i = 0; i < m; i++)
+	{
+		if(bvs.Test(i))
+		{
+			arr1[j] = i;
+			j++;
+		}
+	}
+	for(i = 0; i < n; i++)
+	{
+		if(bvt.Test(i))
+		{
+			arr2[k] = i;
+			k++;
+		}
+	}
+//	size_t longest = fsu::Max(m, n);
 
-	
+	std::cout << "\n";
+	std::cout << "   Length of LCS:  " << lcs_length << '\n';
+	std::cout << "   LCS in s: " << "{ ";
+	for(i = 0; i < j; i++)
+		std::cout << arr1[i] << " ";
+	std::cout << "}\n";
+	std::cout << "    bitcode: ";
+	for(size_t i = 0; i < m; i++)
+		std::cout << bvs[i];
+	std::cout << "\n";
+	std::cout << "\t s = " << str1 << std::endl;
+	std::cout << "   LCS in t: " << "{ ";
+	for(i = 0; i < k; i++)
+		std::cout << arr2[i] << " ";
+	std::cout << "}\n";
+	std::cout << "    bitcode: ";
+	for(size_t i = 0; i < n; i++)
+		std::cout << bvt[i];
+  std::cout << "\n";
+	std::cout << "\t t = " << str2 << std::endl;
+	std::cout << "   optimal alignment: " << std::endl;
+
+
 
 	return 0;
 }
