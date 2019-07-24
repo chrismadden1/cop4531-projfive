@@ -11,9 +11,9 @@
 
 
 using namespace fsu;
-void  ls1(fsu::String s, size_t m, fsu::String t, size_t n, fsu::Matrix<size_t>& L);
+void  ls1(fsu::String s, size_t m, fsu::String t, size_t n, fsu::Matrix<size_t>& L, fsu::Matrix<char>& parent);
 
-size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt);
+size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt, fsu::Matrix<char>& parent);
 
 
 int main(int argc, char*argv[])
@@ -29,7 +29,8 @@ int main(int argc, char*argv[])
 	size_t n = str2.Size();
 	fsu::BitVector  bvs(m);
 	fsu::BitVector  bvt(n);
-	size_t lcs_length = ls2(str1, m, str2, n, bvs, bvt);
+	fsu::Matrix<char> parent (m+1,n+1, 0);
+	size_t lcs_length = ls2(str1, m, str2, n, bvs, bvt, parent);
 	size_t arr1[m];
 	size_t arr2[n];
 	size_t i, j, k;
@@ -79,10 +80,10 @@ int main(int argc, char*argv[])
 
 	return 0;
 }
-size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt)
+size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt, fsu::Matrix<char>& parent)
 {
 	fsu::Matrix<size_t> L (m+1,n+1, 0);
-	ls1(s, m, t, n, L);
+	ls1(s, m, t, n, L, parent);
 	bvs.Unset();
 	bvt.Unset();
 	size_t i = m;
@@ -104,7 +105,7 @@ size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs,
 	return L[m][n];
 }
 
-void   ls1(fsu::String s, size_t m, fsu::String t, size_t n, fsu::Matrix<size_t>& L)
+void   ls1(fsu::String s, size_t m, fsu::String t, size_t n, fsu::Matrix<size_t>& L, fsu::Matrix<char>& parent)
 {
 	size_t i;
 	size_t j;
@@ -113,9 +114,18 @@ void   ls1(fsu::String s, size_t m, fsu::String t, size_t n, fsu::Matrix<size_t>
 		for(j = 1; j <=n; ++j)
 		{
 			if(s[i-1] == t[j-1])
+			{
 				L[i][j] = 1 + L[i-1][j-1];
+				parent[i][j] = 'D';
+			}
 			else
+			{
 				L[i][j] = fsu::Max(L[i-1][j], L[i][j-1]);
+				if(L[i-1][j] > L[i][j-1])
+					parent[i][j] = 'U';
+				else
+					parent[i][j] = 'L';
+			}
 		}
 	}
 }
