@@ -75,7 +75,7 @@ int main(int argc, char*argv[])
   std::cout << "\n";
 	std::cout << "\t t = " << str2 << std::endl;
 	std::cout << "   optimal alignment: " << std::endl;
-
+	parent.Dump(std::cout, m);
 
 
 	return 0;
