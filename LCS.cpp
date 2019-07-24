@@ -11,9 +11,10 @@
 
 
 using namespace fsu;
-void  ls1(fsu::String s, size_t m, fsu::String t, size_t n, fsu::Matrix<size_t>& L, fsu::Matrix<char>& parent);
+void  ls1(fsu::String s, size_t m, fsu::String t, size_t n, fsu::Matrix<size_t>& L);
 
-size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt, fsu::Matrix<char>& parent);
+size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs,
+		fsu::BitVector& bvt, fsu::Matrix<size_t>& parent);
 
 
 int main(int argc, char*argv[])
@@ -29,7 +30,7 @@ int main(int argc, char*argv[])
 	size_t n = str2.Size();
 	fsu::BitVector  bvs(m);
 	fsu::BitVector  bvt(n);
-	fsu::Matrix<char> parent (m+1,n+1, 0);
+	fsu::Matrix<size_t> parent (m+1,n+1, 0);
 	size_t lcs_length = ls2(str1, m, str2, n, bvs, bvt, parent);
 	size_t arr1[m];
 	size_t arr2[n];
@@ -75,15 +76,36 @@ int main(int argc, char*argv[])
   std::cout << "\n";
 	std::cout << "\t t = " << str2 << std::endl;
 	std::cout << "   optimal alignment: " << std::endl;
-	parent.Dump(std::cout, m);
-
-
+	std::cout << "\t s = ";
+/*	for(i = 0; i < m; ++i)
+	{
+		for(j = 0; j < n; ++j)
+		{
+			if(parent[i][j] == 1)
+			{
+				std::cout << str1[j-1];
+			}
+			if(parent[i][j] == 2)
+			{
+				std::cout << str1[j-1];
+			}
+			if(parent[i][j] == 3)
+			{
+				std::cout << '-';
+				--j;
+				break;
+			}
+		}
+	}*/
+	//std::cout << std::endl;
+//parent.Dump(std::cout, m);
 	return 0;
 }
-size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs, fsu::BitVector& bvt, fsu::Matrix<char>& parent)
+size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs,
+		fsu::BitVector& bvt, fsu::Matrix<size_t>& parent)
 {
 	fsu::Matrix<size_t> L (m+1,n+1, 0);
-	ls1(s, m, t, n, L, parent);
+	ls1(s, m, t, n, L);
 	bvs.Unset();
 	bvt.Unset();
 	size_t i = m;
@@ -94,18 +116,26 @@ size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs,
 		{
 			bvs.Set(i-1);
 			bvt.Set(j-1);
+			parent[i][j] = 1;//diag == match
 			--i;
 			--j;
 		}
 		else if(L[i][j] == L[i-1][j])
+		{
+				parent[i][j] = 2;//up
 			--i;
+		}
 		else
+		{
+			parent[i][j] = 3;//left
 			--j;
+		}
 	}
 	return L[m][n];
 }
 
-void   ls1(fsu::String s, size_t m, fsu::String t, size_t n, fsu::Matrix<size_t>& L, fsu::Matrix<char>& parent)
+void   ls1(fsu::String s, size_t m, fsu::String t, size_t n,
+		fsu::Matrix<size_t>& L)
 {
 	size_t i;
 	size_t j;
@@ -116,15 +146,10 @@ void   ls1(fsu::String s, size_t m, fsu::String t, size_t n, fsu::Matrix<size_t>
 			if(s[i-1] == t[j-1])
 			{
 				L[i][j] = 1 + L[i-1][j-1];
-				parent[i][j] = 'D';
 			}
 			else
 			{
 				L[i][j] = fsu::Max(L[i-1][j], L[i][j-1]);
-				if(L[i-1][j] > L[i][j-1])
-					parent[i][j] = 'U';
-				else
-					parent[i][j] = 'L';
 			}
 		}
 	}

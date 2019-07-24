@@ -34,8 +34,8 @@ int main(int argc, char*argv[])
 
 	fsu::BitVector bvs(m);
 	fsu::BitVector bvt(n);
-	fsu::Matrix<size_t> Parent (m+1,n+1, 0);
-	size_t ed_length = ED(str1, m, str2, n, bvs, bvt, subCost);
+	fsu::Matrix<char> parent (m+1,n+1, 0);
+	size_t ed_length = ED(str1, m, str2, n, bvs, bvt, subCost, parent);
 	if(subCost != 2){
 	std::cout << "\n\tEdit Distance: " << ed_length << " // substitution cost = " <<
 		subCost << std::endl;
@@ -50,7 +50,7 @@ int main(int argc, char*argv[])
 	std::cout << "   t > s transcript: " << std::endl;
 	std::cout << "\t\tt:  " << str2 << std::endl;
 	std::cout << "  optimal alignment: " << std::endl;
-	parent.Dump(std::cout, m);
+	//parent.Dump(std::cout, m);
 
 	return 0;
 }
