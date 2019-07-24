@@ -7,7 +7,7 @@
 
 
 size_t ED(fsu::String s, size_t m, fsu::String t, size_t n, fsu::BitVector& bvs,
-	 fsu::BitVector& bvt, size_t subCost);
+	 fsu::BitVector& bvt, size_t subCost, fsu::Matrix<char> &parent);
 size_t Min(size_t a, size_t b, size_t c);
 int main(int argc, char*argv[])
 {
@@ -34,7 +34,7 @@ int main(int argc, char*argv[])
 
 	fsu::BitVector bvs(m);
 	fsu::BitVector bvt(n);
-
+	fsu::Matrix<size_t> Parent (m+1,n+1, 0);
 	size_t ed_length = ED(str1, m, str2, n, bvs, bvt, subCost);
 	if(subCost != 2){
 	std::cout << "\n\tEdit Distance: " << ed_length << " // substitution cost = " <<
@@ -50,11 +50,12 @@ int main(int argc, char*argv[])
 	std::cout << "   t > s transcript: " << std::endl;
 	std::cout << "\t\tt:  " << str2 << std::endl;
 	std::cout << "  optimal alignment: " << std::endl;
+	parent.Dump(std::cout, m);
 
 	return 0;
 }
 size_t ED(fsu::String s, size_t m, fsu::String t, size_t n, fsu::BitVector& bvs,
-	 fsu::BitVector& bvt, size_t subCost)
+	 fsu::BitVector& bvt, size_t subCost, fsu::Matrix<char> &parent)
 {
 	bvs.Unset();
 	bvs.Unset();
@@ -80,6 +81,12 @@ size_t ED(fsu::String s, size_t m, fsu::String t, size_t n, fsu::BitVector& bvs,
 				L[i][j] = Min(1 + L[i-1][j],//delete
 						   1 + L[i][j-1],//insert
 						   subCost + L[i-1][j-1]);//sub
+				if(L[i][j] == 1 + L[i-1][j])
+					parent[i][j] = 'U';//parent is up
+				else if(L[i][j] == 1 + L[i][j-1])
+					parent[i][j] = 'L';//parent is left
+				else
+					parent[i][j] = 'D';//parent is diag.
 			}
   }
 	return L[m][n];
