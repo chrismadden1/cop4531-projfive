@@ -12,3 +12,8 @@ on youtube and starting the implementation.
 07/19/2019 - finished implementing the two functions LCS and ED that match the outputs of LCS_i.x and ED_i.x as far as 
 the number or size_t that is returned from the function. Now need to work on the edit transcripts and get the rest of 
 the output to matchup.
+
+EXCERCISE 2 ANSWER------------------------
+a) The algorithm or edit process itself is meant to work in increasing order, from left to right. Note that whatever path you take you can get from D(0,0) to D(m,n) although it might not be the optimal path. If you keep a parent matrix that represents every "edit" in its cells, then any way you backtrace through the parent matrix should give you an edit transcript for S to T.
+
+b) Max(m,n) ≤ L ≤ m + n... Is pretty intuitive and here is why. lets start with a base case where m is some number and n is 0. Then we know know Max(m, n) is obviously going to be m. L is the edit transcript and is going to have an I for insert for every character of string S because it was empty before as n is 0. So it makes sense that it will have exactly m number of I's so L is at least as great as Max(m,n). If n > 0 this only increases L so it proves the first part. The base case for the second part is the same, say L is exactly the same length as m now, and m + 0 = m so L <= m+n here. Note that the only way an edit transcript from S to T will be longer than the string S itself is when T is a longer string and you need to Insert but at most m - n inserts. Otherwise you would have Match or Sub operations which do not change the length of L. Also the Delete operations that mirror the Insert operation of opposite transcript do not change the length of L.
