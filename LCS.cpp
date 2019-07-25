@@ -14,7 +14,7 @@ using namespace fsu;
 void  ls1(fsu::String s, size_t m, fsu::String t, size_t n, fsu::Matrix<size_t>& L);
 
 size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs,
-		fsu::BitVector& bvt, fsu::Matrix<size_t>& parent);
+		fsu::BitVector& bvt, fsu::Matrix<char>& parent);
 
 
 int main(int argc, char*argv[])
@@ -31,7 +31,7 @@ int main(int argc, char*argv[])
 	size_t n = str2.Size();
 	fsu::BitVector  bvs(m);
 	fsu::BitVector  bvt(n);
-	fsu::Matrix<size_t> parent (m+1,n+1, 0);
+	fsu::Matrix<char> parent (m+1,n+1, 0);
 	size_t lcs_length = ls2(str1, m, str2, n, bvs, bvt, parent);
 	size_t arr1[m];
 	size_t arr2[n];
@@ -74,36 +74,91 @@ int main(int argc, char*argv[])
 	std::cout << "    bitcode: ";
 	for(size_t i = 0; i < n; i++)
 		std::cout << bvt[i];
-  std::cout << "\n";
+    std::cout << "\n";
 	std::cout << "\t t = " << str2 << std::endl;
 	std::cout << "   optimal alignment: " << std::endl;
-	std::cout << "\t s = ";
-/*	for(i = 0; i < m; ++i)
+	size_t l = m + n;
+	i = m;
+	j = n;
+	fsu::String ans1;
+	fsu::String ans2;
+	size_t xpos = l;
+	size_t ypos = l;
+	while(i != 0 || j != 0)
 	{
-		for(j = 0; j < n; ++j)
+		if(str1[i-1] == str2[j-1])
 		{
-			if(parent[i][j] == 1)
-			{
-				std::cout << str1[j-1];
-			}
-			if(parent[i][j] == 2)
-			{
-				std::cout << str1[j-1];
-			}
-			if(parent[i][j] == 3)
-			{
-				std::cout << '-';
-				--j;
-				break;
-			}
+			ans1[xpos--] = str1[i-1];
+			ans2[ypos--] = str2[j-1];
+			i--;
+			j--;
 		}
-	}*/
-	//std::cout << std::endl;
-//parent.Dump(std::cout, m);
+		else if(parent[i-1][j-1] == 'D')
+		{
+			ans1[xpos--] = str1[i-1];
+			ans2[ypos--] = str2[j-1];
+			i--;
+			j--;
+		}
+		else if(parent[i-1][j-1] == 'U')
+		{
+			ans1[xpos--] = str1[i-1];
+			ans2[ypos--] = '-';
+			i--;
+		}
+		else if(parent[i-1][j-1] == 'L')
+		{
+			ans1[xpos--] = '-';
+			ans2[ypos--] = str2[j-1];
+			j--;
+		}
+	}
+	while(xpos > 0)
+	{
+		if(i > 0)
+			ans1[xpos--] = str1[--i];
+		else
+			ans1[xpos--] = '-';			
+	}
+	while(ypos > 0)
+	{
+		if(j > 0)
+			ans2[ypos--] = str2[--j];
+		else
+			ans2[ypos--] = '-';			
+	}
+	size_t check = 1;
+	for (i = l; i >= 1; i--) 
+	{
+		if(ans1[i] == '-' && ans2[i] == '-')
+		{
+			check = i + 1;
+			break;
+		}
+	}
+	fsu::String tmp1;
+	fsu::String tmp2;
+	for(i = check, j = 0; i <= l; i++, j++)
+		tmp1[j] = ans1[i];
+	for(i = check, j = 0; i <= l; i++, j++)
+		tmp2[j] = ans2[i];
+	
+	size_t len = tmp1.Size();
+	std::cout << "\t = " << tmp1 << std::endl;
+	std::cout << "\t   ";   
+	for(i = 0; i < len; i++)
+	{
+		if(tmp1[i] == tmp2[i])
+			std::cout << "|";
+		else
+			std::cout << " ";
+	}
+	std::cout << "\n";
+	std::cout << "\tt = " << tmp2 << std::endl;
 	return 0;
 }
 size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs,
-		fsu::BitVector& bvt, fsu::Matrix<size_t>& parent)
+		fsu::BitVector& bvt, fsu::Matrix<char>& parent)
 {
 	fsu::Matrix<size_t> L (m+1,n+1, 0);
 	ls1(s, m, t, n, L);
@@ -117,18 +172,18 @@ size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs,
 		{
 			bvs.Set(i-1);
 			bvt.Set(j-1);
-			parent[i][j] = 1;//diag == match
+			parent[i][j] = 'D';//diag == match
 			--i;
 			--j;
 		}
 		else if(L[i][j] == L[i-1][j])
 		{
-				parent[i][j] = 2;//up
+				parent[i][j] = 'U';//up
 			--i;
 		}
 		else
 		{
-			parent[i][j] = 3;//left
+			parent[i][j] = 'L';//left
 			--j;
 		}
 	}
