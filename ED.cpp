@@ -1,58 +1,82 @@
 #include<iostream>
+#include<cstdlib>
 #include "bitvect.h"
 #include "genalg.h"
 #include "matrix.h"
+#include "xstring.h"
 #include "xstring.cpp"
+#include "tostring.h"
+#include "string.h"
 #include "bitvect.cpp"
 
 
-size_t ED(fsu::String s, size_t m, fsu::String t, size_t n, fsu::BitVector& bvs,
-	 fsu::BitVector& bvt, size_t subCost, fsu::Matrix<char> &parent);
-size_t Min(size_t a, size_t b, size_t c);
+using namespace fsu;
+void  ls1(fsu::String s, size_t m, fsu::String t, size_t n, fsu::Matrix<size_t>& L);
+
+size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs,
+		fsu::BitVector& bvt, fsu::Matrix<size_t>& parent);
+
+
 int main(int argc, char*argv[])
 {
-	size_t subCost = 2;
 	if(argc < 2)
 	{
-		std::cout << "Usage: ED.x string1(required) string2(required)\n";
-		std::cout << "argument 3 is optional (substituion cost)\n;
-		std::cout << "argument 4 is optional\n;
-		std::cout << "returns minimal edit distance to turn string1 into string 2\n;
+		std::cout << "Usage: LCS.x string1(required) string2(required)\n";
+		std::cout << "returns longest common subsequence\n;
 		return -1;
 	}
 	fsu::String str1 = argv[1];
 	fsu::String str2 = argv[2];
-	if(argc > 3)
-	{
-		fsu::String sub = argv[3];
-		if(sub == "0")
-				subCost = 0;
-		if(sub == "1")
-				subCost = 1;
-		if(sub == "2")
-				subCost = 2;
-	}
 	size_t m = str1.Size();
 	size_t n = str2.Size();
-
-	fsu::BitVector bvs(m);
-	fsu::BitVector bvt(n);
-	fsu::Matrix<char> parent (m+1,n+1, 0);
-	size_t ed_length = ED(str1, m, str2, n, bvs, bvt, subCost, parent);
-	if(subCost != 2){
-	std::cout << "\n\tEdit Distance: " << ed_length << " // substitution cost = " <<
-		subCost << std::endl;
-	}
-	else
+	fsu::BitVector  bvs(m);
+	fsu::BitVector  bvt(n);
+	fsu::Matrix<size_t> parent (m+1,n+1, 0);
+	size_t lcs_length = ls2(str1, m, str2, n, bvs, bvt, parent);
+	size_t arr1[m];
+	size_t arr2[n];
+	size_t i, j, k;
+	j = 0;
+	k = 0;
+	for(i = 0; i < m; i++)
 	{
-		std::cout << "\n\tEdit Distance: " << ed_length <<
-		" // Levenshtein - substitution cost = " <<	subCost << std::endl;
+		if(bvs.Test(i))
+		{
+			arr1[j] = i;
+			j++;
+		}
 	}
-	std::cout << "\t\ts:  " << str1 << std::endl;
-	std::cout << "   s > t transcript: " << std::endl;
-	std::cout << "   t > s transcript: " << std::endl;
-	std::cout << "\t\tt:  " << str2 << std::endl;
-	std::cout << "  optimal alignment: " << std::endl;
+	for(i = 0; i < n; i++)
+	{
+		if(bvt.Test(i))
+		{
+			arr2[k] = i;
+			k++;
+		}
+	}
+//	size_t longest = fsu::Max(m, n);
+
+	std::cout << "\n";
+	std::cout << "   Length of LCS:  " << lcs_length << '\n';
+	std::cout << "   LCS in s: " << "{ ";
+	for(i = 0; i < j; i++)
+		std::cout << arr1[i] << " ";
+	std::cout << "}\n";
+	std::cout << "    bitcode: ";
+	for(size_t i = 0; i < m; i++)
+		std::cout << bvs[i];
+	std::cout << "\n";
+	std::cout << "\t s = " << str1 << std::endl;
+	std::cout << "   LCS in t: " << "{ ";
+	for(i = 0; i < k; i++)
+		std::cout << arr2[i] << " ";
+	std::cout << "}\n";
+	std::cout << "    bitcode: ";
+	for(size_t i = 0; i < n; i++)
+		std::cout << bvt[i];
+    std::cout << "\n";
+	std::cout << "\t t = " << str2 << std::endl;
+	std::cout << "   optimal alignment: " << std::endl;
 	size_t l = m + n;
 	i = m;
 	j = n;
@@ -69,20 +93,20 @@ int main(int argc, char*argv[])
 			i--;
 			j--;
 		}
-		else if(L[i-1][j-1] + subCost == L[i][j])
+		else if(parent[i-1][j-1] == 1)
 		{
 			ans1[xpos--] = str1[i-1];
 			ans2[ypos--] = str2[j-1];
 			i--;
 			j--;
 		}
-		else if(L[i-1][j] + 1 == L[i][j])
+		else if(parent[i-1][j-1] == 2)
 		{
 			ans1[xpos--] = str1[i-1];
 			ans2[ypos--] = '-';
 			i--;
 		}
-		else if(L[i][j-1]+ 1 == L[i][j])
+		else if(parent[i-1][j-1] == 3)
 		{
 			ans1[xpos--] = '-';
 			ans2[ypos--] = str2[j-1];
@@ -131,53 +155,58 @@ int main(int argc, char*argv[])
 	}
 	std::cout << "\n";
 	std::cout << "\tt = " << tmp2 << std::endl;
-	
 	return 0;
 }
-size_t ED(fsu::String s, size_t m, fsu::String t, size_t n, fsu::BitVector& bvs,
-	 fsu::BitVector& bvt, size_t subCost, fsu::Matrix<char> &parent)
+size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs,
+		fsu::BitVector& bvt, fsu::Matrix<size_t>& parent)
 {
-	bvs.Unset();
-	bvs.Unset();
 	fsu::Matrix<size_t> L (m+1,n+1, 0);
-	size_t i;
-	size_t j;
-	L[0][0] = 0;
-	for(i = 0; i <= m; i++)
+	ls1(s, m, t, n, L);
+	bvs.Unset();
+	bvt.Unset();
+	size_t i = m;
+	size_t j = n;
+	while(i > 0 && j > 0)
 	{
-	for(j = 0; j <= n; j++)
-	    if(i == 0)
-					L[i][j] = j;
-			else if(j == 0)
-					L[i][j] = i;
-			else if(s[i-1] == t[j-1])
-			{
-				L[i][j] = L[i-1][j-1];
-				bvs.Set(i);
-				bvt.Set(j);
-			}
-			else
-			{
-				L[i][j] = Min(1 + L[i-1][j],//delete
-						   1 + L[i][j-1],//insert
-						   subCost + L[i-1][j-1]);//sub
-				if(L[i][j] == 1 + L[i-1][j])
-					parent[i][j] = 'U';//parent is up
-				else if(L[i][j] == 1 + L[i][j-1])
-					parent[i][j] = 'L';//parent is left
-				else
-					parent[i][j] = 'D';//parent is diag.
-			}
-  }
+		if(s[i-1] == t[j -1])
+		{
+			bvs.Set(i-1);
+			bvt.Set(j-1);
+			parent[i][j] = 1;//diag == match
+			--i;
+			--j;
+		}
+		else if(L[i][j] == L[i-1][j])
+		{
+				parent[i][j] = 2;//up
+			--i;
+		}
+		else
+		{
+			parent[i][j] = 3;//left
+			--j;
+		}
+	}
 	return L[m][n];
 }
 
-size_t Min(size_t a, size_t b, size_t c)
+void   ls1(fsu::String s, size_t m, fsu::String t, size_t n,
+		fsu::Matrix<size_t>& L)
 {
-	size_t val = a;
-	if(b < val)
-		val = b;
-	if(c < val)
-		val = c;
-	return val;
+	size_t i;
+	size_t j;
+	for(i = 1; i <= m; ++i)
+	{
+		for(j = 1; j <=n; ++j)
+		{
+			if(s[i-1] == t[j-1])
+			{
+				L[i][j] = 1 + L[i-1][j-1];
+			}
+			else
+			{
+				L[i][j] = fsu::Max(L[i-1][j], L[i][j-1]);
+			}
+		}
+	}
 }
