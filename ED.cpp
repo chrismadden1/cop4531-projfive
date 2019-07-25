@@ -14,7 +14,10 @@ int main(int argc, char*argv[])
 	size_t subCost = 2;
 	if(argc < 2)
 	{
-		std::cout << "not enough args\n";
+		std::cout << "Usage: ED.x string1(required) string2(required)\n";
+		std::cout << "argument 3 is optional (substituion cost)\n;
+		std::cout << "argument 4 is optional\n;
+		std::cout << "returns minimal edit distance to turn string1 into string 2\n;
 		return -1;
 	}
 	fsu::String str1 = argv[1];
