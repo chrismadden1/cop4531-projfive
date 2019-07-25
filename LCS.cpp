@@ -21,7 +21,8 @@ int main(int argc, char*argv[])
 {
 	if(argc < 2)
 	{
-		std::cout << "not enough args\n";
+		std::cout << "Usage: LCS.x string1(required) string2(required)\n";
+		std::cout << "returns longest common subsequence\n;
 		return -1;
 	}
 	fsu::String str1 = argv[1];
