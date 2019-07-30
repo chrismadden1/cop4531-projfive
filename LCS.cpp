@@ -114,6 +114,7 @@ int main(int argc, char*argv[])
 size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs,
 		fsu::BitVector& bvt, fsu::Matrix<char>& parent)
 {
+	///////////////////////////////////////////////////add into code here and pass by reference if doesnot work//////////
 	fsu::Matrix<size_t> L (m+1,n+1, 0);
 	ls1(s, m, t, n, L);
 	bvs.Unset();
