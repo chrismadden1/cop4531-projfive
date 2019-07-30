@@ -88,19 +88,19 @@ int main(int argc, char*argv[])
 	{
 		if(parent[i][j] == 'U')
 		{
-			ans1 += str1[i-1];
-			ans2 += '-';
+			ans1 = ans1 + str1[i-1];
+			ans2 = ans1 + '-';
 			i--;
 		}
 		else if(parent[i][j] == 'L')
-			ans1 += '-';
-			ans2 += str2[j-1];
+			ans1 = ans1 + '-';
+			ans2 = ans1 + str2[j-1];
 			j--;
 		}
 		else 
 		{
-			ans1 += str1[j-1];
-			ans2 += str2[j-1];
+			ans1 = ans1 + str1[j-1];
+			ans2 = ans1 + str2[j-1];
 			j--;
 			i--;
 		}
