@@ -6,8 +6,8 @@
 #include "bitvect.cpp"
 
 
-size_t ED(fsu::String s, size_t m, fsu::String t, size_t n, fsu::BitVector& bvs,
-	 fsu::BitVector& bvt, size_t subCost, fsu::Matrix<char> &parent);
+size_t ED(fsu::String s, size_t m, fsu::String t, size_t n, size_t subCost, 
+	  fsu::Matrix<char> &parent, fsu::Matrix<size_t>& L);
 size_t Min(size_t a, size_t b, size_t c);
 int main(int argc, char*argv[])
 {
@@ -35,10 +35,14 @@ int main(int argc, char*argv[])
 	size_t m = str1.Size();
 	size_t n = str2.Size();
 
-	fsu::BitVector bvs(m);
-	fsu::BitVector bvt(n);
+	fsu::Matrix<size_t> L (m+1,n+1, 0);
 	fsu::Matrix<char> parent (m+1,n+1, 0);
-	size_t ed_length = ED(str1, m, str2, n, bvs, bvt, subCost, parent);
+	fsu::Vector<char> ans1;
+	fsu::Vector<char> ans2;
+	fsu::Vector<char> tmp1;
+	fsu::Vector<char> tmp2;
+	fsu::Vector<char> signs;
+	size_t ed_length = ED(str1, m, str2, n, parent, L);
 	if(subCost != 2){
 	std::cout << "\n\tEdit Distance: " << ed_length << " // substitution cost = " <<
 		subCost << std::endl;
@@ -48,126 +52,121 @@ int main(int argc, char*argv[])
 		std::cout << "\n\tEdit Distance: " << ed_length <<
 		" // Levenshtein - substitution cost = " <<	subCost << std::endl;
 	}
-	std::cout << "\t\ts:  " << str1 << std::endl;
-	std::cout << "   s > t transcript: " << std::endl;
-	std::cout << "   t > s transcript: " << std::endl;
-	std::cout << "\t\tt:  " << str2 << std::endl;
-	std::cout << "  optimal alignment: " << std::endl;
-	size_t l = m + n;
-	i = m;
-	j = n;
-	fsu::String ans1;
-	fsu::String ans2;
-	size_t xpos = l;
-	size_t ypos = l;
-	while(i != 0 || j != 0)
+	size_t i = m;
+	size_t j = n;
+	while(i > 0 || j > 0)
 	{
 		if(str1[i-1] == str2[j-1])
 		{
-			ans1[xpos--] = str1[i-1];
-			ans2[ypos--] = str2[j-1];
-			i--;
+			ans1.PushBack('M');
+			ans2.PushBack('M');
+			signs.PushBack('|');
+			i--; j--;
+		}
+		else if(j > 0 && (L[i][j] == L[i][j-1] + 1))
+		{
+			ans1.PushBack('I');
+			ans2.PushBack('D');
+			signs.PushBack(' ');
 			j--;
 		}
-		else if(L[i-1][j-1] + subCost == L[i][j])
+		else if(i > 0 && (L[i][j] == L[i-1][j] + 1))
 		{
-			ans1[xpos--] = str1[i-1];
-			ans2[ypos--] = str2[j-1];
-			i--;
-			j--;
-		}
-		else if(L[i-1][j] + 1 == L[i][j])
-		{
-			ans1[xpos--] = str1[i-1];
-			ans2[ypos--] = '-';
+			ans1.PushBack('D');
+			ans2.PushBack('I');
+			signs.PushBack(' ');
 			i--;
 		}
-		else if(L[i][j-1] + 1 == L[i][j])
+		else if(j > 0 &&  I > 0 && (L[i][j] == L[i-1][j-1] + subCost))
 		{
-			ans1[xpos--] = '-';
-			ans2[ypos--] = str2[j-1];
-			j--;
+			ans1.PushBack('S');
+			ans2.PushBack('S');
+			signs.PushBack(' ');
+			j--; i--;
+		}
+		
+	}
+	std::cout << "\t\ts:  " << str1 << std::endl;
+	std::cout << "   s > t transcript: ";
+	for(i = ans1.Size()-1; i > 0; i--)
+		tmp1.PushBack(ans1[i]);
+	std::cout << "\n   t > s transcript: ";
+	for(i = ans2.Size()-1; i > 0; i--)
+		tmp2.PushBack(ans2[i]);
+	for(i = 0; i < ans1.Size(); i++)
+		std::cout << tmp1[i];
+	for(i = 0; i < ans2.Size(); i++)
+		std::cout << tmp2[i];
+	std::cout << "\t\tt:  " << str2 << std::endl;
+	std::cout << "  optimal alignment: " << std::endl;
+	i = 0;
+	j = 0;
+	while(i < m)
+	{
+		if(ans1[i] == 'I')
+		{
+			std::cout << '-';	
+		}
+		else
+		{
+			std::cout<< str1[i];
+			i++;
 		}
 	}
-	while(xpos > 0)
+	for(size_t k = 0; k < signs.Size(); k++)
+		std::cout << signs[k];
+	while( j < n)
 	{
-		if(i > 0)
-			ans1[xpos--] = str1[--i];
-		else
-			ans1[xpos--] = '-';			
-	}
-	while(ypos > 0)
-	{
-		if(j > 0)
-			ans2[ypos--] = str2[--j];
-		else
-			ans2[ypos--] = '-';			
-	}
-	size_t check = 1;
-	for (i = l; i >= 1; i--) 
-	{
-		if(ans1[i] == '-' && ans2[i] == '-')
+		if(ans2[j] == 'I')	
 		{
-			check = i + 1;
-			break;
+			std::cout << '-';	
+		}
+		else
+		{
+			std::cout<< str2[j];
+			j++;
 		}
 	}
-	fsu::String tmp1;
-	fsu::String tmp2;
-	for(i = check, j = 0; i <= l; i++, j++)
-		tmp1[j] = ans1[i];
-	for(i = check, j = 0; i <= l; i++, j++)
-		tmp2[j] = ans2[i];
-	
-	size_t len = tmp1.Size();
-	std::cout << "\t = " << tmp1 << std::endl;
-	std::cout << "\t   ";   
-	for(i = 0; i < len; i++)
-	{
-		if(tmp1[i] == tmp2[i])
-			std::cout << "|";
-		else
-			std::cout << " ";
-	}
-	std::cout << "\n";
-	std::cout << "\tt = " << tmp2 << std::endl;
-
 	return 0;
 }
-size_t ED(fsu::String s, size_t m, fsu::String t, size_t n, fsu::BitVector& bvs,
-	 fsu::BitVector& bvt, size_t subCost, fsu::Matrix<char> &parent)
+size_t ED(fsu::String s, size_t m, fsu::String t, size_t n, size_t subCost, 
+	  fsu::Matrix<char> &parent, fsu::Matrix<size_t>& L)
 {
-	bvs.Unset();
-	bvs.Unset();
-	fsu::Matrix<size_t> L (m+1,n+1, 0);
+	bool match = false;
 	size_t i;
-	size_t j;
+	size_t j, a, b, c;
 	L[0][0] = 0;
 	for(i = 0; i <= m; i++)
 	{
 	for(j = 0; j <= n; j++)
 	    if(i == 0)
-					L[i][j] = j;
-			else if(j == 0)
-					L[i][j] = i;
-			else if(s[i-1] == t[j-1])
+		L[i][j] = j;
+	    else if(j == 0)
+		L[i][j] = i;
+	    else if(s[i-1] == t[j-1])
+		{	
+			match = true;
+			L[i][j] = L[i-1][j-1];
+		}
+		else
+		{
+			a = L[i-1][j-1] + subCost;
+			b = L[i-1][j] + 1;//delete
+			c = L[i][j-1] + 1;//insert
+			L[i][j] = Min(a, b, c)
+			if(L[i][j] == b)
 			{
-				L[i][j] = L[i-1][j-1];
-				bvs.Set(i);
-				bvt.Set(j);
+				parent[i][j] = 'U';//parent is up
+			}
+			else if(L[i][j] == c)
+			{
+				parent[i][j] = 'L';//parent is left
 			}
 			else
-			{
-				L[i][j] = Min(1 + L[i-1][j],//delete
-						   1 + L[i][j-1],//insert
-						   subCost + L[i-1][j-1]);//sub
-				if(L[i][j] == 1 + L[i-1][j])
-					parent[i][j] = 'U';//parent is up
-				else if(L[i][j] == 1 + L[i][j-1])
-					parent[i][j] = 'L';//parent is left
-				else
-					parent[i][j] = 'D';//parent is diag.
+			{	
+				parent[i][j] = 'D';//parent is diag.
 			}
+		}
   }
 	return L[m][n];
 }
