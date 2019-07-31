@@ -21,15 +21,18 @@
 
 
 void  ls1(fsu::String s, size_t m, fsu::String t, size_t n, fsu::Matrix<size_t>& L,
-		fsu::Matrix<char>& parent, fsu::Matrix<size_t>& score);
+		fsu::Matrix<char>& parent, fsu::Matrix<int>& score);
 
 size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs,
-		fsu::BitVector& bvt, fsu::Matrix<char>& parent, fsu::Matrix<size_t>& score);
+		fsu::BitVector& bvt, fsu::Matrix<char>& parent, fsu::Matrix<int>& score);
 
-		void align(fsu::Matrix<size_t> &score, fsu::String s, size_t m,
-			fsu::String t, size_t n, fsu::Matrix<size_t> L);
+void align(fsu::Matrix<int> &score, fsu::String s, size_t m,
+			fsu::String t, size_t n, fsu::Matrix<size_t> L, fsu::Matrix<char> parent);
 
-void print(fsu::Matrix<size_t> score, fsu::String x, size_t m, size_t n);
+void print(fsu::Matrix<int> score, fsu::String x, size_t m, size_t n);
+
+size_t Max(int a, int b, int c);
+
 int main(int argc, char*argv[])
 {
 	if(argc < 2)
@@ -45,7 +48,7 @@ int main(int argc, char*argv[])
 	fsu::BitVector  bvs(m);
 	fsu::BitVector  bvt(n);
 	fsu::Matrix<char> parent (m+1,n+1, 0);
-	fsu::Matrix<size_t> score (m+1,n+1, 0);
+	fsu::Matrix<int> score (m+1,n+1, 0);
 	size_t lcs_length = ls2(str1, m, str2, n, bvs, bvt, parent, score);
 	size_t arr1[m];
 	size_t arr2[n];
@@ -91,7 +94,9 @@ int main(int argc, char*argv[])
   std::cout << "\n";
 	std::cout << "\t t = " << str2 << std::endl;
 	std::cout << "   optimal alignment: " << std::endl;
-	print(score, str1, m, n);
+  score.Dump(std::cout, m);
+	parent.Dump(std::cout, m);
+//	print(score, str1, m, n);
 /*	size_t l = m + n;
  	i = m;
  	j = n;
@@ -136,7 +141,7 @@ int main(int argc, char*argv[])
 	return 0;
 }
 size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs,
-		fsu::BitVector& bvt, fsu::Matrix<char>& parent, fsu::Matrix<size_t>& score)
+		fsu::BitVector& bvt, fsu::Matrix<char>& parent, fsu::Matrix<int>& score)
 {
 	fsu::Matrix<size_t> L (m+1,n+1, 0);
 	ls1(s, m, t, n, L, parent, score);
@@ -169,7 +174,7 @@ size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs,
 }
 
 void   ls1(fsu::String s, size_t m, fsu::String t, size_t n,
-		fsu::Matrix<size_t>& L, fsu::Matrix<char>& parent, fsu::Matrix<size_t>& score)
+		fsu::Matrix<size_t>& L, fsu::Matrix<char>& parent, fsu::Matrix<int>& score)
 {
 	size_t i;
 	size_t j;
@@ -197,52 +202,71 @@ void   ls1(fsu::String s, size_t m, fsu::String t, size_t n,
 
 		}
 	}
-	align(score,s, m,t, n, L);
+	align(score,s, m,t, n, L, parent);
 }
 
-void print(fsu::Matrix<size_t> score, fsu::String x, size_t m, size_t n)
+void print(fsu::Matrix<int> score, fsu::String x, size_t m, size_t n)
 {
 	std::cout << "in print\n";
-	if(score[m][n] == score[m-1][n-1] + 1 || score[m][n] == score[m-1][n-1] - 1)
+	if(score[m][n] == (score[m-1][n-1] + 1) || score[m][n] == (score[m-1][n-1] - 1))
 	{
 		print(score, x, m-1, n-1);
-		std::cout << x[m];
+		std::cout << x[m-1];
 	}
-	else if (score[m][n] == score[m-1][n] - 1)
+	else if (score[m][n] == (score[m-1][n] - 1))
 	{
-    print(score,x,m-1,n);
-	}
+    //	std::cout << '-';
+			print(score,x,m-1,n);
+  }
   else
 		print(score,x,m,n-1);
 }
 
-void align(fsu::Matrix<size_t> &score, fsu::String s, size_t m,
-	fsu::String t, size_t n, fsu::Matrix<size_t> L)
+void align(fsu::Matrix<int> &score, fsu::String s, size_t m,
+	fsu::String t, size_t n, fsu::Matrix<size_t> L, fsu::Matrix<char> parent)
 {
 	size_t i;
 	size_t j;
-	for(i = 0; i <= m; i++)
-			score[i][0] = 0;
-	for(j = 0; j <= n; j++)
-			score[0][j] = 0;
-
+	int sub;
+	for(i = 0; i < m; i++)
+	{
+	for(j = 0; j < n; j++)
+			score[i][j] = 0;
+	}
+	for(i = 1; i <= m; i++)
+			score[i][0] = i * -1;
+	for(j = 1; j <= n; j++)
+			score[0][j] = j * -1;
 	for(i = 1; i <= m; ++i)
 	{
-		//std::cout << "in align\n";
 		for(j = 1; j <= n; ++j)
 		{
-		//	std::cout << "in loop\n";
-			if(s[i] == t[j])
-				score[i][j] = (1 + score[i-1][j-1]);
-			else///////////////////////////////
-				score[i][j] = (score[i-1][j-1] - 1);
-
-			if(score[i][j] < (score[i-1][j] - 1))
+			if(s[i-1] == t[j-1])
+					sub = 1;
+			else
+					sub = -1;
+			score[i][j] = Max(score[i-1][j] - 1,//delete
+						   score[i][j-1] - 1,score[i-1][j-1] + sub);//sub
+			/*if(parent[i][j] == 'D')
+			{
+				if(s[i] == t[j])
+						score[i][j] = (1 + score[i-1][j-1]);
+				else
+						score[i][j] = (score[i-1][j-1] - 2);
+			}
+		  else if(parent[i][j] == 'L')
 				score[i][j] = (score[i-1][j] - 1);
-			if(score[i][j] < (score[i][j-1] - 1))
-				score[i][j] = (score[i][j-1] - 1);
-
-				std::cout << score[i][j] << " ";
-		}
+			else if(parent[i][j] == 'U')
+				score[i][j] = (score[i][j-1] - 1);*/
 		}
 	}
+}
+size_t Max(int a, int b, int c)
+{
+	size_t val = a;
+	if(b > val)
+		val = b;
+	if(c > val)
+		val = c;
+	return val;
+}
