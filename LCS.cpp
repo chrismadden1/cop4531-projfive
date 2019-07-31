@@ -29,9 +29,11 @@ size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs,
 void align(fsu::Matrix<int> &score, fsu::String s, size_t m,
 			fsu::String t, size_t n, fsu::Matrix<size_t> L, fsu::Matrix<char> parent);
 
-void print(fsu::Matrix<int> score, fsu::String x, size_t m, size_t n);
+void print(fsu::Matrix<int> score, fsu::String x, size_t m, fsu::String y, size_t n,
+	  fsu::Vector<char> &ans1, fsu::Vector<char> &ans2);
 
 size_t Max(int a, int b, int c);
+
 
 int main(int argc, char*argv[])
 {
@@ -94,50 +96,16 @@ int main(int argc, char*argv[])
   std::cout << "\n";
 	std::cout << "\t t = " << str2 << std::endl;
 	std::cout << "   optimal alignment: " << std::endl;
-  score.Dump(std::cout, m);
-	parent.Dump(std::cout, m);
-//	print(score, str1, m, n);
-/*	size_t l = m + n;
- 	i = m;
- 	j = n;
+	print(score, str1, m, n, ans1, ans2);
+	//size_t l = m + n;
+ 	//i = m;
+ 	//j = n;
  	fsu::Vector<char> ans1;
  	fsu::Vector<char> ans2;
-	fsu::Vector<char> tmp1;
- 	fsu::Vector<char> tmp2;
-	fsu::Vector<char> signs;
-//	ans1.SetSize(l);
-	//ans2.SetSize(l);
- 	while(i > 1 || j > 1)
- 	{
- 		if(parent[i][j] == 'U')
- 		{
- 			ans1.PushBack(str1[i-1]);// = str1[i-1] + ans1;
- 			ans2.PushBack('-'); //= '-' + ans2;
- 			i--;
- 		}
- 		else if(parent[i][j] == 'L')
-		{
-			ans1.PushBack('-');
-			ans2.PushBack(str2[j-1]);
- 			j--;
- 		}
- 		else if(parent[i][j] == 'D')
- 		{
-			ans1.PushBack(str1[i-1]);
-			ans2.PushBack(str2[j-1]);
- 			j--;
- 			i--;
- 		}
- 	}
-	//ans1.Dump(std::cout);
-	for(i = ans1.Size()-1; i > 0; i--)
-				tmp1.PushBack(ans1[i]);
-	for(i = ans2.Size()-1; i > 0; i--)
-				tmp2.PushBack(ans2[i]);
-	tmp1.PushBack(ans1[0]);
-	tmp2.PushBack(ans2[0]);
-	tmp1.Dump(std::cout);
-	tmp2.Dump(std::cout);*/
+	//fsu::Vector<char> tmp1;
+ 	//fsu::Vector<char> tmp2;
+	//fsu::Vector<char> signs;
+	print(score, str1, m, n, ans1, ans2);
 	return 0;
 }
 size_t ls2(fsu::String s, size_t m,fsu::String t, size_t n, fsu::BitVector& bvs,
@@ -205,21 +173,28 @@ void   ls1(fsu::String s, size_t m, fsu::String t, size_t n,
 	align(score,s, m,t, n, L, parent);
 }
 
-void print(fsu::Matrix<int> score, fsu::String x, size_t m, size_t n)
+void print(fsu::Matrix<int> score, fsu::String x, size_t m, fsu::String y, size_t n,
+	  fsu::Vector<char> &ans1, fsu::Vector<char> &ans2)
 {
-	std::cout << "in print\n";
-	if(score[m][n] == (score[m-1][n-1] + 1) || score[m][n] == (score[m-1][n-1] - 1))
+	//std::cout << "in print\n";
+	if(i > 0 && (score[m][n] == score[m-1][n] + 1))
 	{
-		print(score, x, m-1, n-1);
-		std::cout << x[m-1];
+		print(score, x, m-1, y, n, ans1, ans2);
+		ans1.PushBack(x[m-1]);
+		ans2.PushBack('-');
 	}
-	else if (score[m][n] == (score[m-1][n] - 1))
+	else if (i > 0 && j > 0 && (score[m][n] == score[m-1][n-1] - 1 || score[m][n] == score[m-1][n-1] + 1 ))
 	{
-    //	std::cout << '-';
-			print(score,x,m-1,n);
-  }
-  else
-		print(score,x,m,n-1);
+    		print(score, x, m-1, y, n-1, ans1, ans2);
+		ans1.PushBack(x[m-1]);
+		ans2.PushBack(y[n-1]);			
+ 	}
+  	else
+ 	 {
+		print(score, x, m, y, n-1, ans1, ans2);
+	  	ans1.PushBack('-');
+		ans2.PushBack(y[n-1]);
+  	 }
 }
 
 void align(fsu::Matrix<int> &score, fsu::String s, size_t m,
@@ -231,7 +206,10 @@ void align(fsu::Matrix<int> &score, fsu::String s, size_t m,
 	for(i = 0; i < m; i++)
 	{
 	for(j = 0; j < n; j++)
-			score[i][j] = 0;
+	{
+		score[i][j] = 0;
+		
+	}
 	}
 	for(i = 1; i <= m; i++)
 			score[i][0] = i * -1;
@@ -242,22 +220,13 @@ void align(fsu::Matrix<int> &score, fsu::String s, size_t m,
 		for(j = 1; j <= n; ++j)
 		{
 			if(s[i-1] == t[j-1])
-					sub = 1;
+				sub = 1;
 			else
-					sub = -1;
-			score[i][j] = Max(score[i-1][j] - 1,//delete
-						   score[i][j-1] - 1,score[i-1][j-1] + sub);//sub
-			/*if(parent[i][j] == 'D')
-			{
-				if(s[i] == t[j])
-						score[i][j] = (1 + score[i-1][j-1]);
-				else
-						score[i][j] = (score[i-1][j-1] - 2);
-			}
-		  else if(parent[i][j] == 'L')
-				score[i][j] = (score[i-1][j] - 1);
-			else if(parent[i][j] == 'U')
-				score[i][j] = (score[i][j-1] - 1);*/
+				sub = -1;
+			int a = score[i-1][j] + 1;
+			int b = score[i-1][j-1] + sub;
+			int c = score[i][j-1] + 1;
+			score[i][j] = Max(a, b, c);
 		}
 	}
 }
